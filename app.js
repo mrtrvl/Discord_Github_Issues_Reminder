@@ -30,7 +30,7 @@ async function sendDiscordMessage(userId, message) {
   client.once('ready', async () => {
     console.log('Bot is ready.');
 
-    for (const [githubUsername, discordUserId] of Object.entries(githubToDiscordMap)) {
+    Object.entries(githubToDiscordMap).map(async ([githubUsername, discordUserId]) => {
       const userIssues = issues.filter(
         (issue) => issue.assignee && issue.assignee.login === githubUsername
       );
@@ -44,7 +44,7 @@ async function sendDiscordMessage(userId, message) {
 
         await sendDiscordMessage(discordUserId, message);
       }
-    }
+    })
 
     client.destroy();
   });
