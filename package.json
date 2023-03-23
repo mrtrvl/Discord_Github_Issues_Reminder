@@ -1,0 +1,24 @@
+{
+  "name": "discord_github_issues_reminder",
+  "version": "1.0.0",
+  "description": "Discord BOT to remind users about open Issues",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrtrvl/Discord_Github_Issues_Reminder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrtrvl/Discord_Github_Issues_Reminder/issues"
+  },
+  "homepage": "https://github.com/mrtrvl/Discord_Github_Issues_Reminder#readme",
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "discord.js": "^14.8.0"
+  }
+}
