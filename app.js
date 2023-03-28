@@ -1,15 +1,16 @@
 const { Octokit } = require('@octokit/rest');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits  } = require('discord.js');
+const cron = require('node-cron');
+const config = require('./config');
 
-const {
-  GITHUB_REPOSITORY,
-  GITHUB_TOKEN,
-  DISCORD_BOT_TOKEN,
-  GITHUB_TO_DISCORD_MAP,
-} = process.env;
-
-const octokit = new Octokit({ auth: GITHUB_TOKEN });
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const octokit = new Octokit({ auth: config.githubToken });
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ]
+});
 
 async function sendDiscordMessage(userId, message) {
   const user = await client.users.fetch(userId);
@@ -17,20 +18,53 @@ async function sendDiscordMessage(userId, message) {
   await dmChannel.send(message);
 }
 
-(async () => {
-  const [owner, repo] = GITHUB_REPOSITORY.split('/');
-  const githubToDiscordMap = JSON.parse(GITHUB_TO_DISCORD_MAP);
+async function getOpenIssuesForUser(username) {
+  const [owner, repo] = config.githubRepository.split('/');
+  const response = await octokit.paginate(octokit.rest.issues.listForRepo, {
+    owner,
+    repo,
+    state: 'open',
+    assignee: username,
+  });
+  return response;
+}
 
+client.on('messageCreate', async (message) => {
+  if(message.author.bot) return;
+  if (message.content.toLowerCase() === '!myissues') {
+    const githubUsername = Object.keys(config.githubToDiscordMap).find((key) => config.githubToDiscordMap[key] === message.author.id);
+
+    if (!githubUsername) {
+      message.reply("Your GitHub username is not mapped to your Discord user ID. Please contact an administrator to set up the mapping.");
+      return;
+    }
+
+    const userIssues = await getOpenIssuesForUser(githubUsername);
+    if (userIssues.length > 0) {
+      const replyMessage = [
+        `You have ${userIssues.length} open issue(s) assigned to you:`,
+        ...userIssues.map((issue) => `- [${issue.title}](${issue.html_url})`),
+      ].join('\n');
+      message.reply(replyMessage);
+    } else {
+      message.reply("You have no open issues assigned to you.");
+    }
+  }
+});
+
+async function sendWeeklyReminders() {
+  console.log('Sending weekly reminders.');
+
+  const [owner, repo] = config.githubRepository.split('/');
   const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
     owner,
     repo,
     state: 'open',
   });
 
-  client.once('ready', async () => {
-    console.log('Bot is ready.');
-
-    Object.entries(githubToDiscordMap).map(async ([githubUsername, discordUserId]) => {
+  // Send weekly reminders
+  await Promise.all(
+    Object.entries(config.githubToDiscordMap).map(async ([githubUsername, discordUserId]) => {
       const userIssues = issues.filter(
         (issue) => issue.assignee && issue.assignee.login === githubUsername
       );
@@ -45,9 +79,16 @@ async function sendDiscordMessage(userId, message) {
         await sendDiscordMessage(discordUserId, message);
       }
     })
+  );
+};
 
-    client.destroy();
+client.once('ready', async () => {
+  console.log('Bot is ready.');
+
+  // Schedule weekly reminders to run every Friday at 12:00 PM
+  cron.schedule('0 12 * * 5', async () => {
+    await sendWeeklyReminders();
   });
+});
 
-  await client.login(DISCORD_BOT_TOKEN);
-})();
+client.login(config.discordBotToken);
