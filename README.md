@@ -6,9 +6,9 @@ This Node.js script is a Discord bot that sends weekly reminders to users about 
 
 ## Dependencies:
 
-- @octokit/rest: GitHub REST API client for JavaScript.
-- discord.js: A powerful library for interacting with the Discord API.
-- node-cron: A task scheduler for running tasks periodically.
+- **@octokit/rest**: GitHub REST API client for JavaScript.
+- **discord.js**: A powerful library for interacting with the Discord API.
+- **node-cron**: A task scheduler for running tasks periodically.
 
 ## Configuration:
 
