@@ -42,6 +42,25 @@ const config = {
 - `client.on('messageCreate', async (message) => { ... })`: Listens for messages in Discord. When a user sends a message with the content !myissues, the bot will reply with a list of their open GitHub issues.
 - `client.once('ready', async () => { ... })`: Executes when the bot is ready. Schedules the sendWeeklyReminders function to run every Friday at 12:00 PM.
 
+## Setting up Discord BOT
+
+Set up a new Discord application:
+1. Visit the Discord Developer Portal: https://discord.com/developers/applications
+2. Click "New Application" and give it a name.
+3. Go to the "Bot" tab and click "Add Bot".
+
+**Get the bot token**: In the "Bot" tab, you can find the bot token. Click "Copy" to copy the token to your clipboard and paste it to `config.js` file as a value to `discordBotToken` key.
+
+Invite the bot to your server:
+1. Go to the "OAuth2" tab in your Discord application.
+2. Scroll down to "Scopes" and select the "bot" scope.
+3. Scroll further down to "Bot Permissions" and select the necessary permissions for your bot (e.g., Send Messages, Read Message History).
+4. Copy the generated URL from the "Scopes" section and paste it into your web browser. Follow the prompts to invite the bot to your server.
+
+## Get Github token
+
+**Set up the GitHub token**: Generate a GitHub Personal Access Token by visiting https://github.com/settings/tokens and clicking "Generate new token". Select the appropriate permissions (e.g., repo scope for accessing private repositories) and click "Generate token". Copy the generated token and paste it to `config.js` file as a value to `githubToken` key.
+
 ## Installation
 
 - Clone repository: `git clone https://github.com/mrtrvl/Discord_Github_Issues_Reminder.git`
