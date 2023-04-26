@@ -85,6 +85,7 @@ async function sendWeeklyReminders() {
 }
 
 client.once('ready', async () => {
+  // eslint-disable-next-line no-console
   console.log('Bot is ready.');
 
   // Schedule weekly reminders to run every Friday at 12:00 PM
