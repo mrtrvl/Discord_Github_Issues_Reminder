@@ -17,17 +17,12 @@ The bot uses a config object, which is imported from a separate module. This obj
 - `githubToken`: GitHub personal access token for accessing the GitHub API.
 - `discordBotToken`: Discord bot token for connecting the bot to Discord.
 - `githubRepository`: A string in the format "owner/repo" representing the GitHub repository.
-- `githubToDiscordMap`: An object that maps GitHub usernames to Discord user IDs.
 
 ```javascript
 const config = {
   githubRepository: 'owner/repository',
   githubToken: 'githubTokenWithRepoPermissions',
   discordBotToken: 'discordTokenAsAString',
-  githubToDiscordMap: {
-    'githubUserName1': 'discordUserId1',
-    'githubUserName2': 'discordUserId2',
-  },
 };
 ```
 
