@@ -1,7 +1,7 @@
 const users = require('./users');
 
 const usersService = {
-  getAllUsers: () => users,
+  getAllUsers: async () => users,
   getUserByGithubUserName: async (githubUserName) => users.find(
     (user) => user.githubUsername === githubUserName,
   ),

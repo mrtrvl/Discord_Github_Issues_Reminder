@@ -33,7 +33,7 @@ async function getOpenIssuesForUser(username) {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (message.content.toLowerCase() === '!myissues') {
-    const user = usersService.getUserByDiscordId(message.author.id);
+    const user = await usersService.getUserByDiscordId(message.author.id);
 
     if (!user) {
       message.reply('Your GitHub username is not mapped to your Discord user ID. Please contact an administrator to set up the mapping.');
@@ -64,7 +64,7 @@ async function sendWeeklyReminders() {
   });
 
   // Send weekly reminders
-  const users = usersService.getAllUsers();
+  const users = await usersService.getAllUsers();
   await Promise.all(
     users.map(async (user) => {
       const userIssues = issues.filter(
