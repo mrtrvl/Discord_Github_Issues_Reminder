@@ -2,6 +2,7 @@ const { Octokit } = require('@octokit/rest');
 const { Client, GatewayIntentBits } = require('discord.js');
 const cron = require('node-cron');
 const config = require('./config');
+const usersService = require('./usersService');
 
 const octokit = new Octokit({ auth: config.githubToken });
 const client = new Client({
@@ -32,16 +33,14 @@ async function getOpenIssuesForUser(username) {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (message.content.toLowerCase() === '!myissues') {
-    const githubUsername = Object.keys(
-      config.githubToDiscordMap,
-    ).find((key) => config.githubToDiscordMap[key] === message.author.id);
+    const user = usersService.getUserByDiscordId(message.author.id);
 
-    if (!githubUsername) {
+    if (!user) {
       message.reply('Your GitHub username is not mapped to your Discord user ID. Please contact an administrator to set up the mapping.');
       return;
     }
 
-    const userIssues = await getOpenIssuesForUser(githubUsername);
+    const userIssues = await getOpenIssuesForUser(user.githubUsername);
     if (userIssues.length > 0) {
       const replyMessage = [
         `You have ${userIssues.length} open issue(s) assigned to you:`,
@@ -65,10 +64,11 @@ async function sendWeeklyReminders() {
   });
 
   // Send weekly reminders
+  const users = usersService.getAllUsers();
   await Promise.all(
-    Object.entries(config.githubToDiscordMap).map(async ([githubUsername, discordUserId]) => {
+    users.map(async (user) => {
       const userIssues = issues.filter(
-        (issue) => issue.assignee && issue.assignee.login === githubUsername,
+        (issue) => issue.assignee && issue.assignee.login === user.githubUsername,
       );
 
       if (userIssues.length > 0) {
@@ -78,7 +78,7 @@ async function sendWeeklyReminders() {
           ...userIssues.map((issue) => `- [${issue.title}](${issue.html_url})`),
         ].join('\n');
 
-        await sendDiscordMessage(discordUserId, message);
+        await sendDiscordMessage(user.discordId, message);
       }
     }),
   );
